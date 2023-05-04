@@ -1,0 +1,87 @@
+# Creator: xxxxx; xxxx@yyyyy.com
+#> location of log file: P:\log.txt
+
+# define the logfile location
+$logfile = P:\log.txt$(date)
+
+
+
+# Create a new user
+function CaUser {
+    $NewUser = Read-Host “Please Enter A username” 
+    if (Get-LocalUser | Where-Object {$_. Name -eq $NewUser }) {
+	    Write-Warning "The User is existing” 
+    }
+    $Password = Read-Host -AsSecureString
+    New-LocalUser $NewUser -Password $Password
+    New-LocalGroup -Name "Customer" -Description "New User in Customer Group"
+    Add-LocalGroupMember -Group "Customer” -Member $NewUser
+	Write-Output $NewUser > $logfile
+}
+
+
+
+# Remove the users home directory and contend
+function RmUser {
+    $users=Get-LocalUser -filter 'enabled -eq $false'
+    $hm=$user.homedirectory
+    Remove-Item -Path $hm -Force -recurse
+    Write-Output $hm >> $logfile
+}
+
+
+
+# Create 100 new user
+function CaUser100 {
+	$password = Read-Host -AsSecureString
+	for ($i = 0; $i -lt 99; $i++) {
+    	New-LocalUser -Name User$i -password $password
+    	Add-LocalGroupMember -Group Users -Member User$i
+    }
+	Write-Output User$i >> $logfile
+}
+
+
+# Report Error
+function Bad {
+   Write-Output "Sadness: you entered $Selection Please select between 1 and 5"
+}
+
+# Create new user from .csv file
+function CaUserFile {
+	$var=Import-Csv -path P:\UserList.csv | Format-Table
+	$100Users=$var.Uname
+	$Primary= $var.Group
+	$Second = $var.Group2
+    New-LocalGroup -Name "Primary" -Description "primary Group"
+    New-LocalGroup -Name "Second" -Description "Second Group"
+    Add-LocalGroupMember -Group "Users”, $Primary, $Second -Member 	$100Users
+    Write-Output $100Users >> $logfile
+}
+
+
+# Establish Menu Option
+Write-Host 1: Create a new user
+Write-Host 2: Remove a user
+Write-Host 3: Create 100 Users
+Write-Host 4: Create Users from File
+Write-Host 5: Exit
+
+$Selection = Read-Host “Please select an option” 
+
+# Flow Control
+if ($Selection -eq 1) {CaUser}
+    
+elseif ($Selection -eq 2) {RmUser}
+
+elseif ($Selection -eq 3) {CaUser100}
+     
+elseif ($Selection -eq 4) {CaUserFile}
+
+elseif ($Selection -eq 5) { Exit }
+
+else {Bad}
+    
+Pause
+
+echo hi
