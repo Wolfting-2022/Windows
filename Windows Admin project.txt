@@ -1,0 +1,121 @@
+0. Lab02 P171 START  Internet setting
+
+1.  Lab02 P258 DNS installation
+     Lab02 P281 DNS config with Forward and reverse 
+     Lab02 P311 establish 4 forwarder x.x.x.x/x.x.x.x/x.x.x.x/x.x.x.x
+     Lab02 P322 modify adapter setting
+2.  Lab02 P342 ADDS installtaion 	
+3.  Lab02 P370 XXXX Admins/DomainUser/Remote Desktop/User+ Domain Admins
+4.  Lab02 P385 forward lookup zone---change zone type---click store----AD Integrated Zone---change to secure only
+
+
+FIN whole_lab2
+dns+fw+rv/adds/inter+update
+
+OU organiztion： ITS(ITSAdmin)---CustSupport(CS User)+Development(Dev User)+HelpDesk(HD User)
+1. 0310	Modifying GPO---in Default Domain Controllers Policy   edit in computer--windows setting---security--local---user rights assignment---allow on locally(gpupdate or restart) and test!!
+2. 0326  share C:package to everyone
+3. 0330  	ITS--Green GPM-User Configuration, policies, expand Software Settings and then click Software Installation---\\Server89093\PACKAGES----green appli-Assigned
+	HelpDesk OU/Red, Blue + assigned
+	test with CSUser and HDUser
+4. 0340	ITS--Cosmo--...published
+	test with CSUser and HDUser
+5. 0345	CustSupport--Cosmo Upgrade GPO---Cosmo2---update 
+	test with CSUser
+    0351	ITS--Cosmo 1 GPO---new--update--Cosmo2--current Cosmo1---update 
+   	delet Cosmo GPO, test with HDUser
+   0354	ITS--Cosmo---remove Cosm02--click first option "Immediately uninstall the software from users and computers"
+	    ---Green---remove and click "Allow users to continue to use the software, but prevent new installations"
+   0356	CSUser--Green and Cosmo2---can use Green but Cosmo2 cannot
+  	HDUser--Green and Cosmo2--cannot use Green as previously not install and Cosmo2 cannot
+
+Exchange installation
+Login as Administrator to do this lab. 
+1. 0408	172.16.94.1/172.16.94.9/172.16.89.253 PTR (when blue shutdown, 192.168...not exist!!!)	172.16.94.9 
+		172.16.94.9 replace by your own!!!!maybe not need to add
+		172.16.94.1 SEEMS use	Prof's server is mail.dm94001.cst8342.com/Professors e-mail is: professor@dm94001.cst8342.com (lab05_07/10)		
+	add 3 line in forward
+			
+    0413	DNS for red and blue network specially!!
+			
+2. 0416	Install-WindowsFeature RSAT-ADDS (copy without modify)
+    	Install API 4.0
+   	Run powershell		(mount wrong ios; 1st command not suceed when restart again)
+		.\Setup.exe /PrepareAD /OrganizationName:”Proj89095 xxxxx Organization” /IAcceptExchangeServerLicenseTerms
+		.\Setup.exe /PrepareAD /OrganizationName:”Proj89096 xxxx Organization” /IAcceptExchangeServerLicenseTerms
+			
+    	Install exchange
+0433	server role---Mailbox and Auto
+0441	Install C++
+	open all service 
+	open ecp and owa
+
+Exchange config
+1.0502 	TingC member of  (modify same as administrator!!)	
+	nslookup serverxxxxx
+			
+2.0510	Install Telnet Client under Server Manager---feature/telnet client!!
+	
+3. 	config firewall of DNS and ICMP????			tracert serverxxxxxx	
+4.0512/16powershell (in Exchange Management Shell!!)		
+5.0518	Accepted Domains
+	Send Connectors--SMTP 
+	Servers / Servers--POP3: TLS 110/995  IMAP4: TLS 143/993
+
+6.0527	Mail Flow / Receive Connectors/Default Frontend---Scoping port25
+
+	CREATE a new user(Recipients, mailboxes)---xxxxx
+	how to modify storage quota
+
+7.0532 	outlook--owa  ecp--recieve connectors--security--allow anonymous!!!
+8. 	Install Mozilla Thunderbird 	send-SMTP/recieve-POP
+	Create a user for this purpose  	delet xxxxx 		new xxxxx
+	Try sending and receiving mail
+	ENTER in owa with a user!!!
+9.0539	Create a new mailbox database---dm89093_chen0869
+	
+10.0548	test abrupt!!!  	telnet mail.dm89095.cst8342.com 25	telnet mail.dm89096.cst8342.com 25
+			*******HAS DONE!********		（Test connection to both Exchange Servers (Port 25)）
+	CREATE another new user(Recipients, mailboxes)---Doug Dacey----in ExchUsers---(cannot login exchange admin due to delete afterwards???)
+	specify the mailbox database, SELECT dm89093_chen0869
+			*******HAS DONE!********		(have its own database called “Dacey”)
+11.0553 	Create another mailbox database DB1 and move by powershell
+12.0561	CREATE another new user(Recipients, mailboxes)---BurnsD--in ExchUsers --select default database then MOVE to DB1 (Migration batch name not blank and tehn will report!!!)
+	CREATE another new user(Recipients, mailboxes)---BurnsJ--in ExchUsers---select database DB1
+	in owa send e-mail from BurnsD to BurnsJ (CREATE BurnsD on thunderbird and send in owa from BurnsJ to BurnsD, SUCCEED!!)
+			*******HAS DONE!********		(Create 2 OU+US and add them in Thunderbird, get email that send previously in OWA!!!!)
+13.0573 	DELECT BurnsJ but recreate again in same ExchUsers OU. Mail disconnect and reconnect in admin(under...) 
+14.0584	Create another mailbox database DB 02
+	CREATE another new user(Recipients, mailboxes)---jonesse--MOVE database to DB 02
+15.	Internet Information Services (IIS) Manager HAS installed---Administrative Tools---open ---double click application---.Net v4.5--.NET CLR is set to v4.0
+	Create another mailbox database "staff"
+	CREATE another new user(Recipients, mailboxes)--RichardH---Archiving enabled using DB1---email setting list!!
+	achieve quota---mailbox features/Archiving
+	holiday deliver---mailbox features/Mail Flow
+
+User connection verification		
+Sending E-mails between Server1, Server2, and Thunderbird using differnet users to verify the connection
+
+
+Lock down user:xxx yyyy01 using GP
+1. modify logon locally that permit domain users can login!!!
+2. setting app-locker
+	https://blog.csdn.net/culintai3473/article/details/108788328
+3.ctrl+alt+delete or click "send button"
+4. all are locked with admin/xxxx/yyyy
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SUMMARY:	
+	1. (02/284)new FWD dmXXX--auto create 2 Host(A): server89095 Host(A)192.168...(if open BLUE!)and serverXXX Host(A) X.X.X.X (click update then create REV auto) 
+	2. (02/284)new REV 16.172.in...--1st is auto with 172.16.X.X,2nd is added with 172.16.X.X
+	3. (02/09) when exchange, add 3 FWD--mail Host(A)172.16.89.95 (click update!!) ; MX mail.dmxxxx...; autodiscover Alias(CNAME) mail.dm89095...;
+	4. (02/08) REV---add 172.16.x.x/.9(optional), 172.16.x.x  serverxxx... & 172.16.x.x  mail.serverxxxx... + 172.16.x.x  serverxxxx.. 	TOTAL 5!!
+	5. 	new FWD-dmXXX	...	serverxxxx Host(A) 172.16.x.x (click update); mail Host(A)172.16.x.x (click update!!) ;
+					MX mail.dmxxx..; autodiscover xxx(CNAME) mail.dmxxxxx...;
+	6.	REV--			172.16.x.x  serverxxxx... & 172.16.x.x  mail.serverxxxx... auto +STEP 4				TOTAL 7!!
+	7. if owa login is abnormal, something wrong is done. mount server database again, if not OK, you need to go directly to the folder to empty data!!
+	8.
+	server1 		two FWD zone WITHOUT x/x.x/x.x	 forwarder with 96
+	server2		one FWD zone WITHOUT x/x.x/x.x	 forwarder with 95
+	9.POSSIBLE 	exchang servers and next need CLICK!!!
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
